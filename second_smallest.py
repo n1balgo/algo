@@ -2,7 +2,6 @@
 
 # input array
 arr = [2, 4, 3, 7, 3, 0, 8, 4, 11, 1]
-arr = [1]
 print "Initial array =", arr, "\n"
 
 # number of comparisons
