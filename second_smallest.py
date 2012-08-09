@@ -59,7 +59,7 @@ print "Smallest element =", arr[idx[0]]
 print "Total comparisons =", num_compare
 print "Nodes knocked off by the smallest =", knockout[idx[0]], "\n"
 
-# compute smallest
+# compute second smallest
 a = knockout[idx[0]]
 if len(a) > 0:
     v = a[0]
