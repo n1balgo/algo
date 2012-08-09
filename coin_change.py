@@ -96,4 +96,4 @@ print "Problem: We have currency =", Currency, "and want to make change for amou
 trace_optimal_solution(Amt, num_coins, selected_change)
 
 # Computes and prints greedy soluton for Amt
-greedy_change(12, Currency)
+greedy_change(Amt, Currency)
