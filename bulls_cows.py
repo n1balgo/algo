@@ -6,21 +6,40 @@ import math
 import random
 
 class VocabBuilder:
-    """ Creates a vocabulary of all the words of length = wordlen, that can be made using characters in charset array """
-    def __init__(self, wordlen, charset):
+    """ Creates a vocabulary of all the words of length = wordlen,
+        that can be made using characters in charset array.
+        
+        If unique_vocab is set to 1, then it creates all words with
+        unique characters.
+        
+        If handle_zero is set to 1, then it ensures that a word does
+        not start with 0. 
+    """
+    
+    def __init__(self, wordlen, charset, unique_vocab = 0, handle_zero = 0):
+        # input params
         self.wordlen = wordlen
         self.charset = charset
+        self.unique_vocab = unique_vocab
+        self.handle_zero = handle_zero
+        
+        # vocabulary array
         self.vocab = []
         
-        # init memory for holding a word
+        # init memory for holding a word in the vocab
         word = ['' for i in xrange(0, wordlen)]
         
-        # generate vocab (using recursion)
-        self.__generate_vocab__(0, word)
-        #self.__generate_unique_vocab__(0, word)
+        # generate vocab using recursion
+        if unique_vocab == 0:
+            self.generate_vocab(0, word)
+        else:
+            self.generate_unique_vocab(0, word)
+            
+        # vocab created    
         print "Created vocab with", len(self.vocab), "words"
+        sys.stdout.flush()
         
-    def __generate_vocab__(self, idx, word):
+    def generate_vocab(self, idx, word):
         """ generate all possible words using charset """
         if idx >= self.wordlen:
             # no further scope of permutation, add word to vocab
@@ -28,27 +47,35 @@ class VocabBuilder:
         else:
             # put all chars in charset as idx, one by one
             for c in self.charset:
-                word[idx] = c
-                self.__generate_vocab__(idx + 1, word)
+                # ensure that 0 doesnt start the word (if handle_zero is set to 1)
+                if idx == 0 and self.handle_zero and c == '0': continue
                 
-    def __generate_unique_vocab__(self, idx, word):
-        """ generate all possible words using charset """
+                # put character at idx in word and recurse
+                word[idx] = c
+                self.generate_vocab(idx + 1, word)
+                
+    def generate_unique_vocab(self, idx, word):
+        """ generate all possible words using charset such that one alphabet used only once in word """
         if idx >= self.wordlen:
             # no further scope of permutation, add word to vocab
             self.vocab.append(''.join(word))
         else:
             # put all chars in charset as idx, one by one
             for c in self.charset:
+                # ensure that 0 doesnt start the word (if handle zero is set to 1)
+                if idx == 0 and self.handle_zero and c == '0': continue
+                
+                # ensure that c is not used in word previously
                 is_first = True
                 for i in range(0, idx):
                     if c == word[i]:
                         is_first = False
                         break
-                    
                 if is_first == False: continue
                 
+                # put character at idx in word and recurse
                 word[idx] = c
-                self.__generate_unique_vocab__(idx + 1, word)
+                self.generate_unique_vocab(idx + 1, word)
 
 def compute_match(word1, word2, wordlen):
     """ computes bulls and cows matches between two words, e.g., between ABC and ACA we have 1 bull (first A) and one cow (C) """
@@ -91,38 +118,36 @@ def compute_match(word1, word2, wordlen):
                 m[c2] = -1
                 
     # return matches
-    return [bulls, cows]
+    return bulls, cows
 
 class BullsCows:
-    def __init__(self, wordlen, charset):
+    def __init__(self, wordlen, charset, initVocab):
+        # input params
         self.wordlen = wordlen
         self.charset = charset
-        
-        # create initial vocab
-        v = VocabBuilder(wordlen, charset)
-        self.initVocab = v.vocab
+        self.initVocab = initVocab
         
         # entropy guess
-        self.entropyGuess = EntropyGuess(self.wordlen, self.initVocab)
+        self.entropyGuess = EntropyGuess(wordlen, initVocab)
         
         # create init guess
         if len(charset) >= wordlen:
             self.initGuess = ''.join(charset[0:wordlen])
         else:
             self.initGuess = ''.join(charset) + charset[0] * (wordlen - len(charset)) 
-        print 'Initial guess:', self.initGuess
+        print 'Using initial guess:', self.initGuess
+        sys.stdout.flush()
         
     def prune_vocab(self, vocab, word, bulls, cows):
         """ removes those words from vocab that do not have the same bulls and cows with word as provided in input """
         vocab1 = []
         for w in vocab:
             # gets bulls and cows for match between word and w
-            [b, c] = compute_match(word, w, wordlen)
+            b, c = compute_match(word, w, wordlen)
             
             # check if they match, then put in pruned_vocab
             if b == bulls and c == cows:
                 vocab1.append(w)
-                
         return vocab1
      
     def random_guess(self, vocab):
@@ -130,7 +155,7 @@ class BullsCows:
         i = random.randint(0, len(vocab) - 1)
         return vocab[i]
      
-    def play(self, find_word, rand_guesses = 4, verbose = 1):
+    def play(self, find_word, rand_guesses = 3, verbose = 1):
         """ start playing guessing game, returns the number of attempts and solution """
         # result set
         attempts = 0
@@ -142,7 +167,7 @@ class BullsCows:
         bulls = 0
         while bulls != self.wordlen:
             # compute bulls and cows
-            [bulls, cows] = compute_match(find_word, guess, self.wordlen)
+            bulls, cows = compute_match(find_word, guess, self.wordlen)
             
             # prune vocab
             vocab = self.prune_vocab(vocab, guess, bulls, cows)
@@ -153,8 +178,9 @@ class BullsCows:
             # print vars
             if verbose:
                 print attempts, ".", guess, 'matches', bulls, cows, '(bulls, cows) with', find_word
-                print vocab
+                if len(vocab) < 50: print vocab
                 print
+                sys.stdout.flush()
                 
             # only one word in vocab, that must be find_word, problem solved
             if len(vocab) <= 1:
@@ -174,6 +200,41 @@ class BullsCows:
              
         return attempts, guess
     
+    def play_interactive(self):
+        """ start playing bulls and cows interactively """
+        vocab = self.initVocab
+        guess = self.initGuess
+        bulls = 0
+        print "Think of a number. I'll try to guess"
+        while bulls != self.wordlen:
+            print "Guessing:", guess
+            
+            # input bulls and cows
+            bulls = int(raw_input("Enter number of bulls:"))
+            cows = int(raw_input("Enter number of cows:"))
+            print bulls + cows
+            
+            # prune vocab
+            vocab = self.prune_vocab(vocab, guess, bulls, cows)
+            print vocab
+            print
+                
+            # only one word in vocab, that must be find_word, problem solved
+            if len(vocab) <= 1:
+                if len(vocab) == 0:
+                    print "You made a mistake in inputting bulls and cows"
+                    return
+                guess = vocab[0]
+                break
+            
+            # generate a fuzzy guess (random + information gain)
+            if len(vocab) < 300:
+                guess = self.entropyGuess.compute_guess(vocab)
+            else:
+                guess = self.random_guess(vocab)
+                
+        print "Secret is", guess
+        
     def compute_algo_stats(self):
         """ computes statistics of the algorithms, like average attempt length, worst attempt length and overall time taken to run the algorithm """
         # result set
@@ -195,7 +256,7 @@ class BullsCows:
                 sys.stdout.flush()
                 
             # num attempts for w
-            attempt, guess = self.play(w, 3, 0)
+            attempt, guess = self.play(w, rand_guesses = 3, verbose = 0)
             
             # update result set
             num_attempts += attempt
@@ -224,7 +285,7 @@ class EntropyGuess:
         # compute the num of elements per partition (as created by w)
         bucket_freq = [0 for i in xrange(0,41)]
         for w in vocab:
-            [b, c] = compute_match(w, word, self.wordlen)
+            b, c = compute_match(w, word, self.wordlen)
             bucket_freq[10*b+c] += 1
             
         # compute information gain
@@ -232,7 +293,6 @@ class EntropyGuess:
         for f in bucket_freq:
             if f > 1:
                 e+= f * math.log10(f)
-                
         return e
      
     def compute_guess(self, vocab):
@@ -240,10 +300,10 @@ class EntropyGuess:
         min_e = self.maxEntropy
         min_w = None
         for w in self.initVocab:
-            
             # compute information gain
             e = self.compute_information_gain(w, vocab)
             
+            # update max
             if e == 0:
                 return w
             elif e <= min_e:
@@ -252,9 +312,13 @@ class EntropyGuess:
                 
         return min_w
 
-charset = [str(i) for i in range(0,10)]
+charset = [str(i) for i in range(9,-1,-1)]
+print "Chatset:", charset
 wordlen = 4
 
-b = BullsCows(wordlen, charset)
-#print b.play('0002')
+v = VocabBuilder(wordlen, charset, unique_vocab = 0, handle_zero = 0)
+
+b = BullsCows(wordlen, charset, v.vocab)
+#print b.play('0020')
+#b.play_interactive()
 b.compute_algo_stats()
