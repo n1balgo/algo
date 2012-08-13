@@ -78,7 +78,9 @@ class VocabBuilder:
                 self.generate_unique_vocab(idx + 1, word)
 
 def compute_match(word1, word2, wordlen):
-    """ computes bulls and cows matches between two words, e.g., between ABC and ACA we have 1 bull (first A) and one cow (C) """
+    """ computes bulls and cows matches between two words, e.g., between
+        ABC and ACA we have 1 bull (first A) and one cow (C)
+    """
     bulls = 0
     cows = 0
     
@@ -139,7 +141,9 @@ class BullsCows:
         sys.stdout.flush()
         
     def prune_vocab(self, vocab, word, bulls, cows):
-        """ removes those words from vocab that do not have the same bulls and cows with word as provided in input """
+        """ removes those words from vocab that do not have the same
+            bulls and cows with word as provided in input
+        """
         vocab1 = []
         for w in vocab:
             # gets bulls and cows for match between word and w
@@ -236,7 +240,9 @@ class BullsCows:
         print "Secret is", guess
         
     def compute_algo_stats(self):
-        """ computes statistics of the algorithms, like average attempt length, worst attempt length and overall time taken to run the algorithm """
+        """ computes statistics of the algorithms, like average attempt length,
+            worst attempt length and overall time taken to run the algorithm
+        """
         # result set
         num_attempts = 0
         worst_attempt = -1
@@ -267,7 +273,8 @@ class BullsCows:
         # print statistics
         time_diff = time.time() - start_time
         print 
-        print "On average, algorithm made", num_attempts / float(len(self.initVocab)), "attempts and used", time_diff / float(len(self.initVocab)), "seconds per attempt"
+        print "On average, algorithm made", num_attempts / float(len(self.initVocab)), "attempts",
+        print "and used", time_diff / float(len(self.initVocab)), "seconds per attempt"
         print "Worst attempt is", worst_attempt, "on word", worst_attempt_word
         print "Total time taken:", time.time() - start_time
 
