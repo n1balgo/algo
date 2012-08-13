@@ -50,10 +50,8 @@ class VocabBuilder:
                 word[idx] = c
                 self.__generate_unique_vocab__(idx + 1, word)
 
-
 def compute_match(word1, word2, wordlen):
     """ computes bulls and cows matches between two words, e.g., between ABC and ACA we have 1 bull (first A) and one cow (C) """
-    
     bulls = 0
     cows = 0
     
@@ -165,10 +163,10 @@ class BullsCows:
                 break
             
             # candidate guesses
-            #guess = vocab[0] # pick first as guess
-            #guess = self.random_guess(vocab) # pick random as a guess
+            # guess = vocab[0] # pick first as guess
+            # guess = self.random_guess(vocab) # pick random as a guess
             
-            # generate a guess
+            # generate a fuzzy guess (random + information gain)
             if attempts <= rand_guesses:
                 guess = self.random_guess(vocab)
             else:
@@ -197,7 +195,7 @@ class BullsCows:
                 sys.stdout.flush()
                 
             # num attempts for w
-            attempt, guess = self.play(w, 4, 0)
+            attempt, guess = self.play(w, 3, 0)
             
             # update result set
             num_attempts += attempt
@@ -254,12 +252,9 @@ class EntropyGuess:
                 
         return min_w
 
-charset = ['B', 'C']
 charset = [str(i) for i in range(0,10)]
 wordlen = 4
 
 b = BullsCows(wordlen, charset)
 #print b.play('0002')
 b.compute_algo_stats()
-
-
