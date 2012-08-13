@@ -51,7 +51,6 @@ class VocabBuilder:
                 self.__generate_unique_vocab__(idx + 1, word)
 
 
-
 def compute_match(word1, word2, wordlen):
     """ computes bulls and cows matches between two words, e.g., between ABC and ACA we have 1 bull (first A) and one cow (C) """
     
@@ -60,7 +59,6 @@ def compute_match(word1, word2, wordlen):
     
     # maintains char count
     m = {}
-    
     for i in range(0, wordlen):
         c1 = word1[i]
         c2 = word2[i]
@@ -163,6 +161,7 @@ class BullsCows:
             # only one word in vocab, that must be find_word, problem solved
             if len(vocab) <= 1:
                 guess = vocab[0]
+                attempts += 1
                 break
             
             # candidate guesses
