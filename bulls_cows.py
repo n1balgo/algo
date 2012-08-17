@@ -273,7 +273,7 @@ class BullsCows:
         # print statistics
         time_diff = time.time() - start_time
         print 
-        print "On average, algorithm made", num_attempts / float(len(self.initVocab)), "attempts",
+        print "On average, algorithm made", num_attempts / float(len(self.initVocab)), "attempts ",
         print "and used", time_diff / float(len(self.initVocab)), "seconds per attempt"
         print "Worst attempt is", worst_attempt, "on word", worst_attempt_word
         print "Total time taken:", time.time() - start_time
